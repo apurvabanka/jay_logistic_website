@@ -37,130 +37,183 @@
 </head>
 <body>
   <div class="specs-container">
-    <h2>Electric Motor - Model X100</h2>
+    <h2>V8 Engine - 3D Model</h2>
     <ul class="specs-list">
-      <li><strong>Power:</strong> 2.2 kW</li>
-      <li><strong>Voltage:</strong> 220V AC</li>
-      <li><strong>Speed:</strong> 2850 RPM</li>
-      <li><strong>Shaft Diameter:</strong> 30 mm</li>
-      <li><strong>Body Length:</strong> 300 mm</li>
-      <li><strong>Mounting:</strong> Foot Mount, 4 Bolts</li>
-      <li><strong>Cooling:</strong> Rear Fan</li>
-      <li><strong>Weight:</strong> 18 kg</li>
+      <li><strong>Configuration:</strong> 90° V8 (modeled as 45° for clarity)</li>
+      <li><strong>Block Dimensions:</strong> 60 cm (L) × 30 cm (W) × 30 cm (H)</li>
+      <li><strong>Cylinders:</strong> 8 hollow cylinders, 10 cm diameter, 20 cm height, 1 cm wall thickness</li>
+      <li><strong>Pistons:</strong> 8 solid pistons, 9 cm diameter, 10 cm height</li>
+      <li><strong>Crankshaft:</strong> 70 cm length, 5 cm diameter, horizontal</li>
+      <li><strong>Connecting Rods:</strong> 8 rods, 15 cm length, 2 cm × 2 cm cross-section, angled to match V</li>
+      <li><strong>Cylinder Heads:</strong> 2 heads, 60 cm × 10 cm × 8 cm, flush with cylinder banks</li>
+      <li><strong>Air Intake Manifold:</strong> Central tube between V banks</li>
+      <li><strong>Exhaust Ports:</strong> 8 short cylinders on outer sides of banks</li>
+      <li><strong>Material:</strong> Metallic gray (for all components)</li>
+      <li><strong>Animation Ready:</strong> Components grouped for future animation</li>
     </ul>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
   <script>
-    // Scene setup
+    // --- Scene setup ---
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf0f0f0);
 
-    // Camera
+    // --- Camera ---
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 2, 10);
+    camera.position.set(0, 80, 220);
 
-    // Renderer
+    // --- Renderer ---
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // Lighting
+    // --- Lighting ---
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     scene.add(ambientLight);
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
-    directionalLight.position.set(5, 10, 7.5);
+    directionalLight.position.set(100, 200, 150);
     scene.add(directionalLight);
 
-    // Motor body (main cylinder)
-    const bodyGeometry = new THREE.CylinderGeometry(1, 1, 3, 48);
-    const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x8888ff, metalness: 0.4, roughness: 0.3 });
-    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-    body.rotation.z = Math.PI / 2;
-    scene.add(body);
+    // --- Materials ---
+    const metalMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.8, roughness: 0.3 });
+    const darkMetalMat = new THREE.MeshStandardMaterial({ color: 0x444444, metalness: 0.9, roughness: 0.2 });
+    const pistonMat = new THREE.MeshStandardMaterial({ color: 0xbbbbbb, metalness: 0.7, roughness: 0.2 });
 
-    // Motor shaft (smaller cylinder)
-    const shaftGeometry = new THREE.CylinderGeometry(0.3, 0.3, 2, 32);
-    const shaftMaterial = new THREE.MeshStandardMaterial({ color: 0xaaaaaa, metalness: 0.7 });
-    const shaft = new THREE.Mesh(shaftGeometry, shaftMaterial);
-    shaft.position.x = 2.5;
-    shaft.rotation.z = Math.PI / 2;
-    scene.add(shaft);
+    // --- Groups for logical structure ---
+    const engineGroup = new THREE.Group();
+    const blockGroup = new THREE.Group();
+    const cylindersGroup = new THREE.Group();
+    const pistonsGroup = new THREE.Group();
+    const crankshaftGroup = new THREE.Group();
+    const rodsGroup = new THREE.Group();
+    const headsGroup = new THREE.Group();
+    const detailsGroup = new THREE.Group();
 
-    // End cap (front)
-    const capGeometry = new THREE.CylinderGeometry(1, 1, 0.2, 48);
-    const capMaterial = new THREE.MeshStandardMaterial({ color: 0x444488, metalness: 0.5 });
-    const cap = new THREE.Mesh(capGeometry, capMaterial);
-    cap.position.x = 1.5;
-    cap.rotation.z = Math.PI / 2;
-    scene.add(cap);
+    // --- Block ---
+    // Block: 60 x 30 x 30 cm
+    const blockGeometry = new THREE.BoxGeometry(60, 30, 30);
+    const block = new THREE.Mesh(blockGeometry, metalMat);
+    block.position.set(0, 15, 0);
+    blockGroup.add(block);
 
-    // End cap (back)
-    const cap2 = cap.clone();
-    cap2.position.x = -1.5;
-    scene.add(cap2);
+    // --- Cylinder V configuration ---
+    // 8 cylinders, 4 per bank, 45° V
+    const cylOuterRadius = 5; // 10 cm diameter
+    const cylInnerRadius = 4; // 1 cm wall thickness
+    const cylHeight = 20;
+    const cylSpacing = 15; // center-to-center
+    const cylBaseY = 30; // top of block
+    const vAngle = Math.PI / 4; // 45°
+    const bankOffsetZ = 10; // half block width + offset
+    const bankOffsetY = Math.cos(vAngle) * (cylHeight / 2);
+    const bankOffsetX = Math.sin(vAngle) * (cylHeight / 2);
 
-    // Mounting brackets (rectangular feet)
-    const bracketGeometry = new THREE.BoxGeometry(0.4, 0.2, 1.2);
-    const bracketMaterial = new THREE.MeshStandardMaterial({ color: 0x555555, metalness: 0.6 });
-    const bracket1 = new THREE.Mesh(bracketGeometry, bracketMaterial);
-    bracket1.position.set(0, -1.1, 0.7);
-    scene.add(bracket1);
-    const bracket2 = bracket1.clone();
-    bracket2.position.z = -0.7;
-    scene.add(bracket2);
-
-    // Mounting bolts (cylinders)
-    const boltGeometry = new THREE.CylinderGeometry(0.07, 0.07, 0.1, 16);
-    const boltMaterial = new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.8 });
-    for (let i = 0; i < 2; i++) {
-      for (let j = 0; j < 2; j++) {
-        const bolt = new THREE.Mesh(boltGeometry, boltMaterial);
-        bolt.position.set(-0.15 + 0.3 * i, -1.2, 0.45 - 0.9 * j);
-        bolt.rotation.x = Math.PI / 2;
-        scene.add(bolt);
+    for (let bank = -1; bank <= 1; bank += 2) { // -1: left, 1: right
+      for (let i = 0; i < 4; i++) {
+        const x = -22.5 + i * cylSpacing; // spread along block length
+        // Cylinder outer
+        const cylGeo = new THREE.CylinderGeometry(cylOuterRadius, cylOuterRadius, cylHeight, 32, 1, true);
+        const cyl = new THREE.Mesh(cylGeo, metalMat);
+        cyl.position.set(x, cylBaseY + bankOffsetY, bank * (bankOffsetZ + bankOffsetX));
+        cyl.rotation.z = bank * vAngle;
+        cylindersGroup.add(cyl);
+        // Cylinder inner (hollow)
+        const cylInnerGeo = new THREE.CylinderGeometry(cylInnerRadius, cylInnerRadius, cylHeight + 0.1, 32, 1, true);
+        const cylInner = new THREE.Mesh(cylInnerGeo, darkMetalMat);
+        cylInner.position.copy(cyl.position);
+        cylInner.rotation.copy(cyl.rotation);
+        cylindersGroup.add(cylInner);
+        // Piston inside
+        const pistonGeo = new THREE.CylinderGeometry(4.5, 4.5, 10, 32);
+        const piston = new THREE.Mesh(pistonGeo, pistonMat);
+        // Piston sits halfway up the cylinder
+        const pistonOffsetY = (cylHeight / 2 - 5) * Math.cos(vAngle) - 5;
+        piston.position.set(
+          x + bank * Math.sin(vAngle) * (cylHeight / 2 - 5),
+          cylBaseY + bankOffsetY - 5,
+          bank * (bankOffsetZ + Math.cos(vAngle) * (cylHeight / 2 - 5))
+        );
+        piston.rotation.z = bank * vAngle;
+        pistonsGroup.add(piston);
+        // Connecting rod
+        // Rod connects piston bottom to crankshaft
+        const rodLength = 15;
+        const rodGeo = new THREE.BoxGeometry(2, rodLength, 2);
+        const rod = new THREE.Mesh(rodGeo, darkMetalMat);
+        // Rod base at crankshaft height (5 below block bottom)
+        const crankY = 5;
+        // Rod angle matches V
+        const rodMidY = (cylBaseY + bankOffsetY - 5 + crankY) / 2;
+        rod.position.set(
+          x + bank * Math.sin(vAngle) * (cylHeight / 2 - 5),
+          rodMidY,
+          bank * (bankOffsetZ + Math.cos(vAngle) * (cylHeight / 2 - 5))
+        );
+        rod.rotation.z = bank * vAngle;
+        rodsGroup.add(rod);
       }
     }
-    for (let i = 0; i < 2; i++) {
-      for (let j = 0; j < 2; j++) {
-        const bolt = new THREE.Mesh(boltGeometry, boltMaterial);
-        bolt.position.set(0.15 - 0.3 * i, -1.2, 0.45 - 0.9 * j);
-        bolt.rotation.x = Math.PI / 2;
-        scene.add(bolt);
+
+    // --- Crankshaft ---
+    // Cylinder: 70 cm length, 5 cm diameter, at y=5
+    const crankGeo = new THREE.CylinderGeometry(2.5, 2.5, 70, 32);
+    const crank = new THREE.Mesh(crankGeo, darkMetalMat);
+    crank.position.set(0, 5, 0);
+    crank.rotation.x = Math.PI / 2;
+    crankshaftGroup.add(crank);
+
+    // --- Heads ---
+    // Cuboids: 60 x 10 x 8 cm, flush with top of cylinders
+    for (let bank = -1; bank <= 1; bank += 2) {
+      const headGeo = new THREE.BoxGeometry(60, 10, 8);
+      const head = new THREE.Mesh(headGeo, metalMat);
+      head.position.set(0, cylBaseY + bankOffsetY + 10, bank * (bankOffsetZ + bankOffsetX));
+      head.rotation.y = 0;
+      headsGroup.add(head);
+    }
+
+    // --- Details: Air intake manifold (simple tube) ---
+    const intakeGeo = new THREE.CylinderGeometry(4, 4, 40, 32);
+    const intake = new THREE.Mesh(intakeGeo, metalMat);
+    intake.position.set(0, cylBaseY + 10, 0);
+    intake.rotation.z = Math.PI / 2;
+    detailsGroup.add(intake);
+
+    // --- Details: Exhaust ports (short cylinders on outer sides) ---
+    for (let bank = -1; bank <= 1; bank += 2) {
+      for (let i = 0; i < 4; i++) {
+        const x = -22.5 + i * cylSpacing;
+        const exhaustGeo = new THREE.CylinderGeometry(1.5, 1.5, 8, 16);
+        const exhaust = new THREE.Mesh(exhaustGeo, darkMetalMat);
+        exhaust.position.set(x, cylBaseY + bankOffsetY, bank * (bankOffsetZ + bankOffsetX + 7));
+        exhaust.rotation.x = Math.PI / 2;
+        detailsGroup.add(exhaust);
       }
     }
 
-    // Rear fan (discs + blades)
-    const fanGeometry = new THREE.CylinderGeometry(0.7, 0.7, 0.15, 32);
-    const fanMaterial = new THREE.MeshStandardMaterial({ color: 0x222266, metalness: 0.6 });
-    const fan = new THREE.Mesh(fanGeometry, fanMaterial);
-    fan.position.x = -1.65;
-    fan.rotation.z = Math.PI / 2;
-    scene.add(fan);
-    // Fan blades
-    for (let i = 0; i < 6; i++) {
-      const bladeGeometry = new THREE.BoxGeometry(0.05, 0.5, 0.12);
-      const bladeMaterial = new THREE.MeshStandardMaterial({ color: 0x6666aa, metalness: 0.7 });
-      const blade = new THREE.Mesh(bladeGeometry, bladeMaterial);
-      blade.position.x = -1.65;
-      blade.position.y = Math.cos((i / 6) * Math.PI * 2) * 0.35;
-      blade.position.z = Math.sin((i / 6) * Math.PI * 2) * 0.35;
-      blade.rotation.x = (i / 6) * Math.PI * 2;
-      scene.add(blade);
-    }
+    // --- Grouping ---
+    engineGroup.add(blockGroup);
+    engineGroup.add(cylindersGroup);
+    engineGroup.add(pistonsGroup);
+    engineGroup.add(crankshaftGroup);
+    engineGroup.add(rodsGroup);
+    engineGroup.add(headsGroup);
+    engineGroup.add(detailsGroup);
+    scene.add(engineGroup);
 
-    // Animation loop
+    // Scale up and move engine
+    engineGroup.scale.set(1.5, 1.5, 1.5);
+    engineGroup.position.x = -40;
+
+    // --- Animation loop ---
     function animate() {
       requestAnimationFrame(animate);
-      body.rotation.y += 0.01;
-      shaft.rotation.y += 0.01;
-      cap.rotation.y += 0.01;
-      cap2.rotation.y += 0.01;
-      fan.rotation.y += 0.03;
+      engineGroup.rotation.y += 0.01;
       renderer.render(scene, camera);
     }
     animate();
 
-    // Responsive resize
+    // --- Responsive resize ---
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
