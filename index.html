@@ -70,12 +70,6 @@
       <li><strong>Cylinders:</strong> 8 hollow cylinders, 10 cm diameter, 20 cm height, 1 cm wall thickness</li>
       <li><strong>Pistons:</strong> 8 solid pistons, 9 cm diameter, 10 cm height</li>
       <li><strong>Crankshaft:</strong> 70 cm length, 5 cm diameter, horizontal</li>
-      <li><strong>Connecting Rods:</strong> 8 rods, 15 cm length, 2 cm × 2 cm cross-section, angled to match V</li>
-      <li><strong>Cylinder Heads:</strong> 2 heads, 60 cm × 10 cm × 8 cm, flush with cylinder banks</li>
-      <li><strong>Air Intake Manifold:</strong> Central tube between V banks</li>
-      <li><strong>Exhaust Ports:</strong> 8 short cylinders on outer sides of banks</li>
-      <li><strong>Material:</strong> Metallic gray (for all components)</li>
-      <li><strong>Animation Ready:</strong> Components grouped for future animation</li>
     </ul>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
@@ -235,13 +229,13 @@
     // Scale up and move engine
     engineGroup.scale.set(1.2, 1.2, 1.2); // Reduced from 1.5
     engineGroup.position.x = 0; // Center the model
-    engineGroup.position.y = 20; // Move model higher up
+    engineGroup.position.y = 50; // Move model higher up
     
     // Mobile-specific adjustments
     if (window.innerWidth <= 768) {
       engineGroup.scale.set(1.6, 1.6, 1.6); // Reduced from 2.0
       engineGroup.position.x = 0; // Center on mobile too
-      engineGroup.position.y = 30; // Even higher on mobile
+      engineGroup.position.y = 60; // Even higher on mobile
     }
 
     // --- Animation loop ---
