@@ -9,19 +9,26 @@
     canvas { display: block; }
     .specs-container {
       position: absolute;
-      top: 20px;
-      right: 30px;
+      bottom: 20px;
+      right: 20px;
       background: rgba(255,255,255,0.95);
       border-radius: 12px;
       box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-      padding: 24px 32px;
-      max-width: 340px;
+      padding: 16px 20px;
+      max-width: 300px;
       z-index: 10;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .specs-container:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     }
     .specs-container h2 {
       margin-top: 0;
-      font-size: 1.5em;
+      font-size: 1.2em;
       color: #333;
+      margin-bottom: 10px;
     }
     .specs-list {
       list-style: none;
@@ -29,9 +36,28 @@
       margin: 0;
     }
     .specs-list li {
-      margin-bottom: 10px;
-      font-size: 1.08em;
+      margin-bottom: 6px;
+      font-size: 0.9em;
       color: #444;
+    }
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      .specs-container {
+        bottom: 15px;
+        right: 15px;
+        left: 15px;
+        max-width: none;
+        padding: 12px 16px;
+        border-radius: 8px;
+      }
+      .specs-container h2 {
+        font-size: 1.1em;
+        margin-bottom: 8px;
+      }
+      .specs-list li {
+        font-size: 0.85em;
+        margin-bottom: 4px;
+      }
     }
   </style>
 </head>
@@ -60,7 +86,12 @@
 
     // --- Camera ---
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 80, 220);
+    // Mobile-optimized camera position - model higher up
+    if (window.innerWidth <= 768) {
+      camera.position.set(0, 60, 250); // Higher and closer for mobile
+    } else {
+      camera.position.set(0, 40, 180); // Higher for desktop too
+    }
 
     // --- Renderer ---
     const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -202,8 +233,16 @@
     scene.add(engineGroup);
 
     // Scale up and move engine
-    engineGroup.scale.set(1.5, 1.5, 1.5);
-    engineGroup.position.x = -40;
+    engineGroup.scale.set(1.2, 1.2, 1.2); // Reduced from 1.5
+    engineGroup.position.x = 0; // Center the model
+    engineGroup.position.y = 20; // Move model higher up
+    
+    // Mobile-specific adjustments
+    if (window.innerWidth <= 768) {
+      engineGroup.scale.set(1.6, 1.6, 1.6); // Reduced from 2.0
+      engineGroup.position.x = 0; // Center on mobile too
+      engineGroup.position.y = 30; // Even higher on mobile
+    }
 
     // --- Animation loop ---
     function animate() {
